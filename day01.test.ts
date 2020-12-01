@@ -12,8 +12,12 @@ const setToPower = <T>(dimension: number, set: T[]) =>
 /// sum([1, 2, 3]) === 6;
 const sum = (inputs: number[]) => inputs.reduce((a, b) => a + b, 0);
 
-const findOperandsSum = (operands: number, targetSum: number, list: number[]) =>
-  setToPower(operands, list).find((point) => sum(point) === targetSum);
+const findOperandsSum = (
+  operands: number,
+  targetSum: number,
+  list: number[]
+): number[] =>
+  setToPower(operands, list).find((point) => sum(point) === targetSum) || [];
 
 test("Day 1a - test", () => {
   const [a, b] = findOperandsSum(2, 2020, testInput);
