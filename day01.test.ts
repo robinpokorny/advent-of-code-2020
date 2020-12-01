@@ -1,23 +1,19 @@
-const findOperandsSum = (
-  operands: number,
-  sum = 2020,
-  list: number[]
-): number[] | null => {
-  // Final recursion condition
-  if (operands === 1) {
-    return list.includes(sum) ? [sum] : null;
-  }
+// cartesianProd([1, 2], [3, 4]) === [ [1, 3], [1, 4], [2, 3], [2, 4] ];
+const cartesianProd = <T>(...sets: T[][]): T[][] =>
+  sets.reduce<T[][]>(
+    (acc, set) => acc.flatMap((x) => set.map((y) => [...x, y])),
+    [[]]
+  );
 
-  // Calls recursion with early return
-  for (const n of list) {
-    const result = findOperandsSum(operands - 1, sum - n, list);
-    if (result) {
-      return [n, ...result];
-    }
-  }
+// setToPower(3, [1, 2]) === cartesianProd([1, 2], [1, 2], [1, 2]);
+const setToPower = <T>(dimension: number, set: T[]) =>
+  cartesianProd<T>(...Array(dimension).fill(set));
 
-  return null;
-};
+/// sum([1, 2, 3]) === 6;
+const sum = (inputs: number[]) => inputs.reduce((a, b) => a + b, 0);
+
+const findOperandsSum = (operands: number, targetSum: number, list: number[]) =>
+  setToPower(operands, list).find((point) => sum(point) === targetSum);
 
 test("Day 1a - test", () => {
   const [a, b] = findOperandsSum(2, 2020, testInput);
