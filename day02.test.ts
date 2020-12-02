@@ -26,7 +26,7 @@ export const prepareInput = ([input]: TemplateStringsArray) =>
 
 /* === UTILS === */
 
-const xor = (a: boolean, b: boolean) => (a ? !b : b);
+const xor = (a: boolean, b: boolean) => a !== b;
 
 /* === IMPLEMENTATION === */
 
