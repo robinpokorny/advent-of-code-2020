@@ -9,10 +9,10 @@ const cartesianProd = <T>(...sets: T[][]): T[][] =>
 const setToPower = <T>(dimension: number, set: T[]) =>
   cartesianProd<T>(...Array(dimension).fill(set));
 
-/// sum([1, 2, 3]) === 6;
+// sum([1, 2, 3]) === 6;
 const sum = (inputs: number[]) => inputs.reduce((a, b) => a + b, 0);
 
-const findOperandsSum = (
+export const findOperandsSum = (
   operands: number,
   targetSum: number,
   list: number[]

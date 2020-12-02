@@ -1,0 +1,14 @@
+const prepareInput = ([input]: TemplateStringsArray) =>
+  input.split("\n").map(Number);
+
+test("Day 1a - test", () => {});
+
+test.skip("Day 1a - prod", () => {});
+
+test.skip("Day 1b - test", () => {});
+
+test.skip("Day 1b - prod", () => {});
+
+const testInput = prepareInput``;
+
+const prodInput = prepareInput``;
