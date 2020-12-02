@@ -1,41 +1,71 @@
+/* === TYPES === */
+
 type Line = {
   from: number;
   to: number;
   letter: string;
-  password: string;
+  password: string[];
 };
+
+/* === PREPARE INPUT === */
 
 const re = /^(\d+)-(\d+) (\w): (\w+)/;
 const parseLine = (line: string): Line => {
   const [, from, to, letter, password] = line.match(re) ?? [];
 
-  return { from: Number(from), to: Number(to), letter, password };
+  return {
+    from: Number(from),
+    to: Number(to),
+    letter,
+    password: [...password],
+  };
 };
 
-const prepareInput = ([input]: TemplateStringsArray) =>
+export const prepareInput = ([input]: TemplateStringsArray) =>
   input.split("\n").map(parseLine);
 
-const isValidPassword = ({ from, to, letter, password }: Line) => {
-  const occurences = [...password].filter((char) => char === letter).length;
+/* === UTILS === */
+
+const xor = (a: boolean, b: boolean) => (a ? !b : b);
+
+/* === IMPLEMENTATION === */
+
+export const isValidPasswordSled = ({ from, to, letter, password }: Line) => {
+  const occurences = password.filter((char) => char === letter).length;
 
   return occurences >= from && occurences <= to;
 };
 
-test.skip("Day 2a - test", () => {
-  const valid = testInput.filter(isValidPassword);
+export const isValidPasswordToboggan = ({ from, to, letter, password }: Line) =>
+  xor(password[from - 1] === letter, password[to - 1] === letter);
+
+/* === TESTS === */
+
+test("Day 2a - test", () => {
+  const valid = testInput.filter(isValidPasswordSled);
 
   expect(valid.length).toBe(2);
 });
 
-test.skip("Day 2a - prod", () => {
-  const valid = prodInput.filter(isValidPassword);
+test("Day 2a - prod", () => {
+  const valid = prodInput.filter(isValidPasswordSled);
 
   expect(valid.length).toBe(378);
 });
 
-test.skip("Day 2b - test", () => {});
+test("Day 2b - test", () => {
+  const valid = testInput.filter(isValidPasswordToboggan);
 
-test.skip("Day 2b - prod", () => {});
+  expect(valid.length).toBe(1);
+});
+
+test("Day 2b - prod", () => {
+  const valid = prodInput.filter(isValidPasswordToboggan);
+
+  expect(valid.length).toBe(280);
+});
+
+/* === INPUTS === */
 
 const testInput = prepareInput`1-3 a: abcde
 1-3 b: cdefg

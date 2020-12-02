@@ -1,3 +1,5 @@
+/* === UTILS === */
+
 // cartesianProd([1, 2], [3, 4]) === [ [1, 3], [1, 4], [2, 3], [2, 4] ];
 const cartesianProd = <T>(...sets: T[][]): T[][] =>
   sets.reduce<T[][]>(
@@ -11,6 +13,8 @@ const setToPower = <T>(dimension: number, set: T[]) =>
 
 // sum([1, 2, 3]) === 6;
 const sum = (inputs: number[]) => inputs.reduce((a, b) => a + b, 0);
+
+/* === IMPLEMENTATION === */
 
 export const findOperandsSum = (
   operands: number,
@@ -50,6 +54,8 @@ test("Day 1b - prod", () => {
 
   expect(a * b * c).toBe(263819430);
 });
+
+/* === INPUTS === */
 
 const testInput = `1721
 979
