@@ -16,23 +16,30 @@ const prepareInput = ([input]: TemplateStringsArray) =>
   input.split("\n").map((line) => [...line].map(toSquare)) as Slope;
 
 /* === UTILS === */
+const product = (numbers: number[]) =>
+  numbers.reduce((acc, next) => acc * next, 1);
+
 type GetSquareAt = (slope: Slope, point: Point) => Square;
 const getSquareAt: GetSquareAt = (slope, [x, y]) =>
   slope[x][y % slope[0].length];
 
+const treesInPath = (path: Square[]) =>
+  path.filter((square) => square === Square.Tree).length;
+
 /* === IMPLEMENTATION === */
-type BuildPath = (slope: Slope, origin: Point) => Square[];
-const buildPath: BuildPath = (slope, [x, y]) => {
+type BuildPath = (slope: Slope, delta: Point, origin?: Point) => Square[];
+const buildPath: BuildPath = (slope, delta, [x, y] = [0, 0]) => {
   if (x >= slope.length - 1) return [];
 
-  const nextPoint: Point = [x + 1, y + 3];
-  return [getSquareAt(slope, nextPoint), ...buildPath(slope, nextPoint)];
+  const [dx, dy] = delta;
+  const nextPoint: Point = [x + dx, y + dy];
+  return [getSquareAt(slope, nextPoint), ...buildPath(slope, delta, nextPoint)];
 };
 
 /* === TESTS === */
 
 test("Day 1a - test", () => {
-  const path = buildPath(testInput, [0, 0]);
+  const path = buildPath(testInput, [1, 3]);
 
   expect(path).toMatchInlineSnapshot(`
     Array [
@@ -54,15 +61,45 @@ test("Day 1a - test", () => {
 });
 
 test("Day 3a - prod", () => {
-  const path = buildPath(prodInput, [0, 0]);
+  const path = buildPath(prodInput, [1, 3], [0, 0]);
 
   const treesInPath = path.filter((square) => square === Square.Tree).length;
-  expect(treesInPath).toBe(7);
+  expect(treesInPath).toBe(145);
 });
 
-test.skip("Day 3b - test", () => {});
+test("Day 3b - test", () => {
+  const deltas: Point[] = [
+    [1, 1],
+    [1, 3],
+    [1, 5],
+    [1, 7],
+    [2, 1],
+  ];
 
-test.skip("Day 3b - prod", () => {});
+  const paths = deltas
+    .map((delta) => buildPath(testInput, delta))
+    .map(treesInPath);
+
+  console.log(paths);
+  expect(product(paths)).toBe(336);
+});
+
+test("Day 3b - prod", () => {
+  const deltas: Point[] = [
+    [1, 1],
+    [1, 3],
+    [1, 5],
+    [1, 7],
+    [2, 1],
+  ];
+
+  const paths = deltas
+    .map((delta) => buildPath(prodInput, delta))
+    .map(treesInPath);
+
+  console.log(paths);
+  expect(product(paths)).toBe(3424528800);
+});
 
 /* === INPUTS === */
 
