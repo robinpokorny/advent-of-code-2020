@@ -23,33 +23,30 @@ type GetSquareAt = (slope: Slope) => (point: Point) => Square;
 const getSquareAt: GetSquareAt = (slope) => ([x, y]) =>
   slope[x][y % slope[0].length];
 
-const treesInPath = (path: Square[]) =>
-  path.filter((square) => square === Square.Tree).length;
-
 /* === IMPLEMENTATION === */
-type BuildPath = (slopeLength: number, delta: Point, origin?: Point) => Point[];
-const buildPath: BuildPath = (slopeLength, delta, [x, y] = [0, 0]) => {
-  if (x >= slopeLength) return [];
-
-  const [dx, dy] = delta;
-  const nextPoint: Point = [x + dx, y + dy];
-  return [nextPoint, ...buildPath(slopeLength, delta, nextPoint)];
-};
+type CountTreesInPath = (slope: Slope, delta: Point) => number;
+const countTreesInPath: CountTreesInPath = (slope, [dx, dy]) =>
+  // Get number of moves until reaching the end
+  [...Array((slope.length - 1) / dx + 1).keys()]
+    // Repeat step to find point
+    .map((i) => [dx * i, dy * i] as Point)
+    .map(getSquareAt(slope))
+    .filter((square) => square === Square.Tree).length;
 
 /* === TESTS === */
 
 test("Day 1a - test", () => {
   const slope = testInput;
-  const path = buildPath(slope.length - 1, [1, 3]).map(getSquareAt(slope));
+  const trees = countTreesInPath(slope, [1, 3]);
 
-  expect(treesInPath(path)).toBe(7);
+  expect(trees).toBe(7);
 });
 
 test("Day 3a - prod", () => {
   const slope = prodInput;
-  const path = buildPath(slope.length - 1, [1, 3]).map(getSquareAt(slope));
+  const trees = countTreesInPath(slope, [1, 3]);
 
-  expect(treesInPath(path)).toBe(145);
+  expect(trees).toBe(145);
 });
 
 test("Day 3b - test", () => {
@@ -63,11 +60,9 @@ test("Day 3b - test", () => {
     [2, 1],
   ];
 
-  const paths = deltas
-    .map((delta) => buildPath(slope.length - 1, delta).map(getSquareAt(slope)))
-    .map(treesInPath);
+  const trees = deltas.map((delta) => countTreesInPath(slope, delta));
 
-  expect(product(paths)).toBe(336);
+  expect(product(trees)).toBe(336);
 });
 
 test("Day 3b - prod", () => {
@@ -81,12 +76,9 @@ test("Day 3b - prod", () => {
     [2, 1],
   ];
 
-  const paths = deltas
-    .map((delta) => buildPath(slope.length - 1, delta).map(getSquareAt(slope)))
-    .map(treesInPath);
+  const trees = deltas.map((delta) => countTreesInPath(slope, delta));
 
-  console.log(paths);
-  expect(product(paths)).toBe(3424528800);
+  expect(product(trees)).toBe(3424528800);
 });
 
 /* === INPUTS === */
