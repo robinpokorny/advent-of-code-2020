@@ -19,55 +19,42 @@ const prepareInput = ([input]: TemplateStringsArray) =>
 const product = (numbers: number[]) =>
   numbers.reduce((acc, next) => acc * next, 1);
 
-type GetSquareAt = (slope: Slope, point: Point) => Square;
-const getSquareAt: GetSquareAt = (slope, [x, y]) =>
+type GetSquareAt = (slope: Slope) => (point: Point) => Square;
+const getSquareAt: GetSquareAt = (slope) => ([x, y]) =>
   slope[x][y % slope[0].length];
 
 const treesInPath = (path: Square[]) =>
   path.filter((square) => square === Square.Tree).length;
 
 /* === IMPLEMENTATION === */
-type BuildPath = (slope: Slope, delta: Point, origin?: Point) => Square[];
-const buildPath: BuildPath = (slope, delta, [x, y] = [0, 0]) => {
-  if (x >= slope.length - 1) return [];
+type BuildPath = (slopeLength: number, delta: Point, origin?: Point) => Point[];
+const buildPath: BuildPath = (slopeLength, delta, [x, y] = [0, 0]) => {
+  if (x >= slopeLength) return [];
 
   const [dx, dy] = delta;
   const nextPoint: Point = [x + dx, y + dy];
-  return [getSquareAt(slope, nextPoint), ...buildPath(slope, delta, nextPoint)];
+  return [nextPoint, ...buildPath(slopeLength, delta, nextPoint)];
 };
 
 /* === TESTS === */
 
 test("Day 1a - test", () => {
-  const path = buildPath(testInput, [1, 3]);
+  const slope = testInput;
+  const path = buildPath(slope.length - 1, [1, 3]).map(getSquareAt(slope));
 
-  expect(path).toMatchInlineSnapshot(`
-    Array [
-      "Open",
-      "Tree",
-      "Open",
-      "Tree",
-      "Tree",
-      "Open",
-      "Tree",
-      "Tree",
-      "Tree",
-      "Tree",
-    ]
-  `);
-
-  const treesInPath = path.filter((square) => square === Square.Tree).length;
-  expect(treesInPath).toBe(7);
+  expect(treesInPath(path)).toBe(7);
 });
 
 test("Day 3a - prod", () => {
-  const path = buildPath(prodInput, [1, 3], [0, 0]);
+  const slope = prodInput;
+  const path = buildPath(slope.length - 1, [1, 3]).map(getSquareAt(slope));
 
-  const treesInPath = path.filter((square) => square === Square.Tree).length;
-  expect(treesInPath).toBe(145);
+  expect(treesInPath(path)).toBe(145);
 });
 
 test("Day 3b - test", () => {
+  const slope = testInput;
+
   const deltas: Point[] = [
     [1, 1],
     [1, 3],
@@ -77,14 +64,15 @@ test("Day 3b - test", () => {
   ];
 
   const paths = deltas
-    .map((delta) => buildPath(testInput, delta))
+    .map((delta) => buildPath(slope.length - 1, delta).map(getSquareAt(slope)))
     .map(treesInPath);
 
-  console.log(paths);
   expect(product(paths)).toBe(336);
 });
 
 test("Day 3b - prod", () => {
+  const slope = prodInput;
+
   const deltas: Point[] = [
     [1, 1],
     [1, 3],
@@ -94,7 +82,7 @@ test("Day 3b - prod", () => {
   ];
 
   const paths = deltas
-    .map((delta) => buildPath(prodInput, delta))
+    .map((delta) => buildPath(slope.length - 1, delta).map(getSquareAt(slope)))
     .map(treesInPath);
 
   console.log(paths);
