@@ -2,7 +2,7 @@
 
 /* === PREPARE INPUT === */
 
-const prepareInput = ([input]: TemplateStringsArray) =>
+export const prepareInput = ([input]: TemplateStringsArray) =>
   input.split("\n").map(Number);
 
 /* === UTILS === */
@@ -11,13 +11,13 @@ const prepareInput = ([input]: TemplateStringsArray) =>
 
 /* === TESTS === */
 
-test("Day 1a - test", () => {});
+test("Day <day>a - test", () => {});
 
-test.skip("Day 1a - prod", () => {});
+test.skip("Day <day>a - prod", () => {});
 
-test.skip("Day 1b - test", () => {});
+test.skip("Day <day>b - test", () => {});
 
-test.skip("Day 1b - prod", () => {});
+test.skip("Day <day>b - prod", () => {});
 
 /* === INPUTS === */
 
