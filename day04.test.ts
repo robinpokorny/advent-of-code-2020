@@ -44,11 +44,12 @@ const hasMandatoryFields = (passport: Passport): boolean => {
 };
 
 const isValidHeight = (hgt: string): boolean => {
+  const value = hgt.slice(0, -2);
   const unit = hgt.slice(-2);
 
   return (
-    (unit === "cm" && inRange(150, 193)(hgt)) ||
-    (unit === "in" && inRange(59, 76)(hgt))
+    (unit === "cm" && inRange(150, 193)(value)) ||
+    (unit === "in" && inRange(59, 76)(value))
   );
 };
 
@@ -62,7 +63,7 @@ const isValidPassport: IsValidPassport = allPass(
     hgt: isValidHeight,
     hcl: (hcl) => /^#[\da-f]{6}/.test(hcl),
     ecl: (ecl) => EYE_COLORS.includes(ecl),
-    pid: allPass(hasXDigits(9)),
+    pid: hasXDigits(9),
   })
 );
 
