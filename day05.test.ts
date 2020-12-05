@@ -30,11 +30,13 @@ test("Day <day>a - prod", () => {
 });
 
 test("Day <day>b - prod", () => {
+  const occupiedSeats = new Set(prodInput);
+
   const minPass = Math.min(...prodInput);
   const maxPass = Math.max(...prodInput);
 
   const myPass = range(minPass, maxPass).find(
-    (pass) => !prodInput.includes(pass)
+    (pass) => !occupiedSeats.has(pass)
   );
 
   expect(myPass).toBe(696);
