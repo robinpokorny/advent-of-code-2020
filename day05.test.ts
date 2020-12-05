@@ -1,30 +1,26 @@
 /* === TYPES === */
+type Binary = 1 | 0;
 
 /* === PREPARE INPUT === */
-const MAP_TO_ONE = "BR";
-const lineToBinary = (line: string): string =>
-  [...line].map((char) => (MAP_TO_ONE.includes(char) ? 1 : 0)).join("");
-
 export const prepareInput = ([input]: TemplateStringsArray) =>
-  input
-    .split("\n")
-    .map(lineToBinary)
-    .map((val) => Number.parseInt(val, 2));
+  input.split("\n").map(lineToBinary).map(binaryToNumber);
 
 /* === UTILS === */
+const MAP_TO_ONE = "BR";
+const lineToBinary = (line: string): Binary[] =>
+  [...line].map((char) => (MAP_TO_ONE.includes(char) ? 1 : 0));
+
+const binaryToNumber = (val: Binary[]) => Number.parseInt(val.join(""), 2);
+
+const range = (from: number, to: number) =>
+  [...Array(to - from + 1).keys()].map((i) => i + from);
 
 /* === IMPLEMENTATION === */
 
 /* === TESTS === */
 
 test("Day <day>a - test", () => {
-  expect(testInput).toMatchInlineSnapshot(`
-    Array [
-      567,
-      119,
-      820,
-    ]
-  `);
+  expect(testInput).toEqual([567, 119, 820]);
 });
 
 test("Day <day>a - prod", () => {
@@ -33,9 +29,16 @@ test("Day <day>a - prod", () => {
   expect(maxPass).toBe(938);
 });
 
-test.skip("Day <day>b - test", () => {});
+test("Day <day>b - prod", () => {
+  const minPass = Math.min(...prodInput);
+  const maxPass = Math.max(...prodInput);
 
-test.skip("Day <day>b - prod", () => {});
+  const myPass = range(minPass, maxPass).find(
+    (pass) => !prodInput.includes(pass)
+  );
+
+  expect(myPass).toBe(696);
+});
 
 /* === INPUTS === */
 
