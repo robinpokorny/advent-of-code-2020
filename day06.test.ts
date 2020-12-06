@@ -13,17 +13,18 @@ export const prepareInput = ([input]: TemplateStringsArray): Group[] =>
 /* === UTILS === */
 const sum = (ns: number[]): number => ns.reduce((a, b) => a + b, 0);
 
-const intersection = (xs: Answer, ys: Answer): Char[] =>
+const union = <T>(...xs: T[][]): Set<T> => new Set(xs.flat());
+
+const intersect = <T>(xs: T[], ys: T[]): T[] =>
   xs.filter((x) => ys.includes(x));
 
+const intersection = <T>(...xs: T[][]): T[] => xs.reduce(intersect);
+
 /* === IMPLEMENTATION === */
-const countAnyYes = (group: Group): number => {
-  const questions: Set<Char> = new Set(group.flat());
+const countAnyYes = (group: Group): number => union<Char>(...group).size;
 
-  return questions.size;
-};
-
-const countAllYes = (group: Group): number => group.reduce(intersection).length;
+const countAllYes = (group: Group): number =>
+  intersection<Char>(...group).length;
 
 /* === TESTS === */
 

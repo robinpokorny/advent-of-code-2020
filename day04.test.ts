@@ -4,6 +4,8 @@ type Passport = Record<
   string
 >;
 
+type Predicate = (val: string) => boolean;
+
 /* === PREPARE INPUT === */
 const parsePassport = (raw: string): Passport =>
   Object.fromEntries(raw.split(/[\n\s]/).map((field) => field.split(":")));
@@ -25,11 +27,12 @@ const inRange = (min: number, max: number) => (field: string) => {
 };
 
 type FieldsPass = (
-  structure: Partial<Record<keyof Passport, (val: string) => boolean>>
+  structure: Partial<Record<keyof Passport, Predicate>>
 ) => (val: Passport) => boolean;
 const fieldsPass: FieldsPass = (structure) => (passport) =>
   Object.entries(structure).every(
-    ([key, predicate]) => predicate && predicate(passport[key])
+    ([key, predicate]) =>
+      predicate && predicate(passport[key as keyof Passport])
   );
 
 const REQUIRED_FIELDS = ["ecl", "pid", "eyr", "hcl", "byr", "iyr", "hgt"];
