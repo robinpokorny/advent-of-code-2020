@@ -19,11 +19,11 @@ const range = (from: number, to: number) =>
 
 /* === TESTS === */
 
-test("Day <day>a - test", () => {
+test("Day 5a - test", () => {
   expect(testInput).toEqual([567, 119, 820]);
 });
 
-test("Day <day>a - prod", () => {
+test("Day 5a - prod", () => {
   const maxPass = Math.max(...prodInput);
 
   expect(maxPass).toBe(938);
