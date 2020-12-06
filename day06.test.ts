@@ -6,31 +6,54 @@ export const prepareInput = ([input]: TemplateStringsArray) =>
   input.split("\n\n");
 
 /* === UTILS === */
-const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
+const sum = (ns: number[]) => ns.reduce((a, b) => a + b, 0);
+
+const intersection = <T>(xs: T[], ys: T[]): T[] =>
+  xs.filter((x) => ys.includes(x));
 
 /* === IMPLEMENTATION === */
-const countQuestions = (group: string) =>
-  new Set(group.replace(/[\n\s]/g, "")).size;
+const countAnyYes = (group: string): number => {
+  const questions = new Set(group);
+  questions.delete("\n");
+
+  return questions.size;
+};
+
+const countAllYes = (group: string): number =>
+  group
+    .split("\n")
+    .map((answers) => answers.split(""))
+    .reduce(intersection).length;
 
 /* === TESTS === */
 
 test("Day 6a - test", () => {
-  const countInGroups = testInput.map(countQuestions);
+  const countInGroups = testInput.map(countAnyYes);
   const totalCount = sum(countInGroups);
 
   expect(totalCount).toBe(11);
 });
 
 test("Day 6a - prod", () => {
-  const countInGroups = prodInput.map(countQuestions);
+  const countInGroups = prodInput.map(countAnyYes);
   const totalCount = sum(countInGroups);
 
   expect(totalCount).toBe(6443);
 });
 
-test.skip("Day 6b - test", () => {});
+test("Day 6b - test", () => {
+  const countInGroups = testInput.map(countAllYes);
+  const totalCount = sum(countInGroups);
 
-test.skip("Day 6b - prod", () => {});
+  expect(totalCount).toBe(6);
+});
+
+test("Day 6b - prod", () => {
+  const countInGroups = prodInput.map(countAllYes);
+  const totalCount = sum(countInGroups);
+
+  expect(totalCount).toBe(3232);
+});
 
 /* === INPUTS === */
 
