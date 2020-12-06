@@ -1,29 +1,29 @@
 /* === TYPES === */
+type Char = string;
+type Answer = Char[];
+type Group = Answer[];
 
 /* === PREPARE INPUT === */
 
-export const prepareInput = ([input]: TemplateStringsArray) =>
-  input.split("\n\n");
+export const prepareInput = ([input]: TemplateStringsArray): Group[] =>
+  input
+    .split("\n\n")
+    .map((group) => group.split("\n").map((answer) => answer.split("")));
 
 /* === UTILS === */
-const sum = (ns: number[]) => ns.reduce((a, b) => a + b, 0);
+const sum = (ns: number[]): number => ns.reduce((a, b) => a + b, 0);
 
-const intersection = <T>(xs: T[], ys: T[]): T[] =>
+const intersection = (xs: Answer, ys: Answer): Char[] =>
   xs.filter((x) => ys.includes(x));
 
 /* === IMPLEMENTATION === */
-const countAnyYes = (group: string): number => {
-  const questions = new Set(group);
-  questions.delete("\n");
+const countAnyYes = (group: Group): number => {
+  const questions: Set<Char> = new Set(group.flat());
 
   return questions.size;
 };
 
-const countAllYes = (group: string): number =>
-  group
-    .split("\n")
-    .map((answers) => answers.split(""))
-    .reduce(intersection).length;
+const countAllYes = (group: Group): number => group.reduce(intersection).length;
 
 /* === TESTS === */
 
