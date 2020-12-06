@@ -29,7 +29,7 @@ test("Day <day>a - prod", () => {
   expect(maxPass).toBe(938);
 });
 
-test("Day <day>b - prod", () => {
+test("Day 5b - prod", () => {
   const occupiedSeats = new Set(prodInput);
 
   const minPass = Math.min(...prodInput);
