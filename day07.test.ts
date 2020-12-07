@@ -1,5 +1,6 @@
 /* === TYPES === */
-type Bag = { id: string; contains: Record<string, number> | null };
+type Bag = [id: string, contains: Record<string, number> | null];
+type Bags = Map<string, Record<string, number> | null>;
 
 /* === PREPARE INPUT === */
 const bags = "(?:(\\d+) (\\w+ \\w+) bags?(?:, )?)?";
@@ -11,7 +12,7 @@ const parseLine = (line: string): Bag => {
   const [, id, noOther, countA, idA, countB, idB, countC, idC, countD, idD] =
     line.match(re) ?? [];
 
-  if (noOther) return { id, contains: null };
+  if (noOther) return [id, null];
 
   const contains = {
     ...(countA && { [idA]: Number(countA) }),
@@ -20,7 +21,7 @@ const parseLine = (line: string): Bag => {
     ...(countD && { [idD]: Number(countD) }),
   };
 
-  return { id, contains };
+  return [id, contains];
 };
 
 export const prepareInput = ([input]: TemplateStringsArray) =>
@@ -30,7 +31,7 @@ export const prepareInput = ([input]: TemplateStringsArray) =>
 
 /* === IMPLEMENTATION === */
 const getCanBeInMap = (bags: Bag[]) =>
-  bags.reduce((map, { id, contains }) => {
+  bags.reduce((map, [id, contains]) => {
     if (contains) {
       Object.keys(contains).forEach((inner) => {
         if (!map.has(inner)) map.set(inner, new Set());
@@ -67,6 +68,27 @@ const canBeInAll = (bags: Bag[], bag: string) => {
   return outer;
 };
 
+const containsTotal = (
+  bags: Bags,
+  id: string,
+  memo = new Map<string, number>()
+): number => {
+  if (memo.has(id)) return memo.get(id) || 0;
+
+  const bag = bags.get(id);
+
+  if (!bag) return 1;
+
+  const countAll =
+    Object.entries(bag)
+      .map(([inner, count]) => count * containsTotal(bags, inner, memo))
+      .reduce((a, b) => a + b, 0) + 1;
+
+  memo.set(id, countAll);
+
+  return countAll;
+};
+
 /* === TESTS === */
 
 test("Day 7a - test", () => {
@@ -90,9 +112,19 @@ test("Day 7a - prod", () => {
   expect(result.size).toBe(155);
 });
 
-test.skip("Day 7b - test", () => {});
+test("Day 7b - test", () => {
+  const conatins = containsTotal(new Map(testInput2), "shiny gold");
 
-test.skip("Day 7b - prod", () => {});
+  const result = conatins - 1; // do not count self
+  expect(result).toMatchInlineSnapshot(`126`);
+});
+
+test("Day 7b - prod", () => {
+  const conatins = containsTotal(new Map(prodInput), "shiny gold");
+
+  const result = conatins - 1; // do not count self
+  expect(result).toMatchInlineSnapshot(`54803`);
+});
 
 /* === INPUTS === */
 
@@ -105,6 +137,14 @@ dark olive bags contain 3 faded blue bags, 4 dotted black bags.
 vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
 faded blue bags contain no other bags.
 dotted black bags contain no other bags.`;
+
+const testInput2 = prepareInput`shiny gold bags contain 2 dark red bags.
+dark red bags contain 2 dark orange bags.
+dark orange bags contain 2 dark yellow bags.
+dark yellow bags contain 2 dark green bags.
+dark green bags contain 2 dark blue bags.
+dark blue bags contain 2 dark violet bags.
+dark violet bags contain no other bags.`;
 
 const prodInput = prepareInput`muted coral bags contain 1 bright magenta bag, 1 dim aqua bag.
 muted orange bags contain 2 bright red bags.
