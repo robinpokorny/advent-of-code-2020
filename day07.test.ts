@@ -1,6 +1,7 @@
 /* === TYPES === */
 type Bag = [id: string, contains: Record<string, number> | null];
 type Bags = Map<string, Record<string, number> | null>;
+type Parents = Map<string, Set<string>>;
 
 /* === PREPARE INPUT === */
 const bags = "(?:(\\d+) (\\w+ \\w+) bags?(?:, )?)?";
@@ -30,7 +31,7 @@ export const prepareInput = ([input]: TemplateStringsArray) =>
 /* === UTILS === */
 
 /* === IMPLEMENTATION === */
-const getCanBeInMap = (bags: Bag[]) =>
+const getCanBeInMap = (bags: Bag[]): Parents =>
   bags.reduce((map, [id, contains]) => {
     if (contains) {
       Object.keys(contains).forEach((inner) => {
@@ -43,9 +44,7 @@ const getCanBeInMap = (bags: Bag[]) =>
     return map;
   }, new Map<string, Set<string>>());
 
-const canBeInAll = (bags: Bag[], bag: string) => {
-  const canBeIn = getCanBeInMap(bags);
-
+const getAllParents = (parents: Parents, bag: string) => {
   const outer = new Set<string>();
   const process: string[] = [bag];
 
@@ -53,9 +52,9 @@ const canBeInAll = (bags: Bag[], bag: string) => {
     const next = process.pop() as string;
     outer.add(next);
 
-    const parents = canBeIn.get(next) ?? [];
+    const nextParents = parents.get(next) ?? [];
 
-    const unprocessedParents = [...parents].filter(
+    const unprocessedParents = [...nextParents].filter(
       (parent) => !outer.has(parent)
     );
 
@@ -92,7 +91,7 @@ const containsTotal = (
 /* === TESTS === */
 
 test("Day 7a - test", () => {
-  const result = canBeInAll(testInput, "shiny gold");
+  const result = getAllParents(getCanBeInMap(testInput), "shiny gold");
 
   expect(result).toMatchInlineSnapshot(`
     Set {
@@ -107,7 +106,7 @@ test("Day 7a - test", () => {
 });
 
 test("Day 7a - prod", () => {
-  const result = canBeInAll(prodInput, "shiny gold");
+  const result = getAllParents(getCanBeInMap(prodInput), "shiny gold");
 
   expect(result.size).toBe(155);
 });
