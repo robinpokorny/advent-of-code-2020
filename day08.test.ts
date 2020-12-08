@@ -32,6 +32,7 @@ const runUntilLoop: RunUntilLoop = (
   lineNo = 0,
   run = new Set()
 ) => {
+  // Loops
   if (run.has(lineNo)) return value;
   run.add(lineNo);
 
@@ -60,14 +61,16 @@ const runAndFix: RunAndFix = (
   run = new Set(),
   fixLine
 ) => {
-  if (run.has(lineNo)) return 0;
-
+  // Program ends
   if (lineNo >= commands.length) return value;
 
+  // Loops
+  if (run.has(lineNo)) return 0;
   run.add(lineNo);
 
   const { name, arg } = commands[lineNo];
 
+  // No previous branching
   if (!fixLine) {
     if (name === "nop") {
       return (
