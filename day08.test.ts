@@ -46,6 +46,54 @@ const runUntilLoop: RunUntilLoop = (
   }
 };
 
+type RunAndFix = (
+  commands: Command[],
+  value: number,
+  lineNo?: number,
+  run?: Set<number>,
+  fixLine?: number
+) => number;
+const runAndFix: RunAndFix = (
+  commands,
+  value,
+  lineNo = 0,
+  run = new Set(),
+  fixLine
+) => {
+  if (run.has(lineNo)) return 0;
+
+  if (lineNo >= commands.length) return value;
+
+  run.add(lineNo);
+
+  const { name, arg } = commands[lineNo];
+
+  if (!fixLine) {
+    if (name === "nop") {
+      return (
+        runAndFix(commands, value, lineNo + 1, run, fixLine) +
+        runAndFix(commands, value, lineNo + arg, new Set(run), lineNo)
+      );
+    }
+
+    if (name === "jmp") {
+      return (
+        runAndFix(commands, value, lineNo + arg, run, fixLine) +
+        runAndFix(commands, value, lineNo + 1, new Set(run), lineNo)
+      );
+    }
+  }
+
+  switch (name) {
+    case "nop":
+      return runAndFix(commands, value, lineNo + 1, run, fixLine);
+    case "jmp":
+      return runAndFix(commands, value, lineNo + arg, run, fixLine);
+    case "acc":
+      return runAndFix(commands, value + arg, lineNo + 1, run, fixLine);
+  }
+};
+
 /* === TESTS === */
 
 test("Day 8a - test", () => {
@@ -60,9 +108,17 @@ test("Day 8a - prod", () => {
   expect(result).toBe(1654);
 });
 
-test.skip("Day 8b - test", () => {});
+test("Day 8b - test", () => {
+  const result = runAndFix(testInput, 0);
 
-test.skip("Day 8b - prod", () => {});
+  expect(result).toBe(8);
+});
+
+test("Day 8b - prod", () => {
+  const result = runAndFix(prodInput, 0);
+
+  expect(result).toBe(833);
+});
 
 /* === INPUTS === */
 
