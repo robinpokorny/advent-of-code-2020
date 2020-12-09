@@ -9,12 +9,40 @@ export const prepareInput = ([input]: TemplateStringsArray) =>
 const includesSum = (sum: number, xs: number[]) =>
   xs.some((x, i) => xs.some((y, j) => i !== j && x + y === sum));
 
+const extremesInRange = (
+  from: number = 0,
+  to: number = 0,
+  xs: number[]
+): [number, number] => {
+  const range = xs.slice(from, to);
+
+  return [Math.min(...range), Math.max(...range)];
+};
+
 /* === IMPLEMENTATION === */
 const findInvalid = (preambleSize: number, xs: number[]) =>
   xs.find(
     (value, i) =>
       i >= preambleSize && !includesSum(value, xs.slice(i - preambleSize, i))
   );
+
+const findContiguousSum = (
+  targetSum: number,
+  xs: number[],
+  from: number = 0,
+  to: number = 0,
+  sum: number = xs[from]
+): [number, number] => {
+  if (sum === targetSum) {
+    return [from, to];
+  }
+
+  if (sum < targetSum) {
+    return findContiguousSum(targetSum, xs, from, to + 1, sum + xs[to + 1]);
+  } else {
+    return findContiguousSum(targetSum, xs, from + 1, to, sum - xs[from]);
+  }
+};
 
 /* === TESTS === */
 
@@ -27,12 +55,29 @@ test("Day 9a - test", () => {
 test("Day 9a - prod", () => {
   const result = findInvalid(25, prodInput);
 
-  expect(result).toBe(127);
+  expect(result).toBe(2089807806);
 });
 
-test.skip("Day 9b - test", () => {});
+test("Day 9b - test", () => {
+  const invalid = findInvalid(5, testInput) as number;
+  const [from, to] = findContiguousSum(invalid, testInput);
 
-test.skip("Day 9b - prod", () => {});
+  expect(from).toBe(2);
+  expect(to).toBe(5);
+
+  const [min, max] = extremesInRange(from, to, testInput);
+
+  expect(min + max).toBe(62);
+});
+
+test("Day 9b - prod", () => {
+  const invalid = findInvalid(25, prodInput) as number;
+  const [from, to] = findContiguousSum(invalid, prodInput);
+
+  const [min, max] = extremesInRange(from, to, prodInput);
+
+  expect(min + max).toBe(245848639);
+});
 
 /* === INPUTS === */
 
