@@ -1,5 +1,5 @@
 /* === TYPES === */
-type Diffs = Record<1 | 2 | 3, number>;
+type Diffs = Record<1 | 3, number>;
 
 /* === PREPARE INPUT === */
 export const prepareInput = ([input]: TemplateStringsArray) =>
@@ -8,15 +8,15 @@ export const prepareInput = ([input]: TemplateStringsArray) =>
 /* === UTILS === */
 const numCompare = (a: number, b: number) => a - b;
 const last = <T>(xs: T[]): T => xs[xs.length - 1];
-const empty = (): Diffs => ({ 1: 0, 2: 0, 3: 0 });
-const countDiffs = (diffs: Diffs, x: number, i: number, xs: number[]) => {
-  const prev = xs[i - 1] || 0;
-  const diff = (x - prev) as 1 | 2 | 3;
+const empty = (): Diffs => ({ 1: 0, 3: 0 });
+const toDiff = (xs: number[]): (1 | 3)[] =>
+  xs.map((x, i) => (x - (xs[i - 1] || 0)) as 1 | 3);
 
-  diffs[diff] = diffs[diff] + 1;
-
-  return diffs;
-};
+const countOccurences = (xs: (1 | 3)[]) =>
+  xs.reduce((diffs, x) => {
+    diffs[x] = diffs[x] + 1;
+    return diffs;
+  }, empty());
 
 /* === IMPLEMENTATION === */
 const joltageDiff = (adapters: number[]): Diffs => {
@@ -24,7 +24,7 @@ const joltageDiff = (adapters: number[]): Diffs => {
 
   const withDevice = [...sorted, last(sorted) + 3];
 
-  return withDevice.reduce(countDiffs, empty());
+  return countOccurences(toDiff(withDevice));
 };
 
 /* === TESTS === */
