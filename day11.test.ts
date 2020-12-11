@@ -7,20 +7,42 @@ enum Seat {
 
 type World = Readonly<Seat[][]>;
 
+type GetNeighbours = (world: World, x: number, y: number) => Seat[];
+
 /* === PREPARE INPUT === */
 
 export const prepareInput = ([input]: TemplateStringsArray): World =>
   input.split("\n").map((line) => line.split("") as Seat[]);
 
 /* === UTILS === */
+
 // prettier-ignore
 const neighbours = [
   [-1, -1], [-1, 0], [-1, 1],
   [ 0, -1], /*0, 0*/ [ 0, 1],
   [ 1, -1], [ 1, 0], [ 1, 1],
 ];
-const getNeighbours = (world: World, x: number, y: number) =>
+const getDirectNeighbours: GetNeighbours = (world, x, y) =>
   neighbours.map(([dx, dy]) => world[x + dx]?.[y + dy] || Seat.floor);
+
+const getFirstInSight: GetNeighbours = (world, x, y) =>
+  neighbours.map(([dx, dy]) => {
+    let steps = 1;
+
+    while (true) {
+      const [gx, gy] = [x + dx * steps, y + dy * steps];
+
+      if (!world[gx]?.[gy]) {
+        return Seat.floor;
+      }
+
+      if (world[gx][gy] !== Seat.floor) {
+        return world[gx][gy];
+      }
+
+      steps++;
+    }
+  });
 
 const countOccupied = (seats: Seat[]): number =>
   seats.filter((seat) => seat === Seat.occupied).length;
@@ -28,31 +50,47 @@ const countOccupied = (seats: Seat[]): number =>
 const countOccupiedInWorld = (world: World): number =>
   countOccupied(world.flat());
 
-const runSeat = (world: World, seat: Seat, x: number, y: number): Seat => {
+const runSeat = (
+  world: World,
+  seat: Seat,
+  x: number,
+  y: number,
+  leaveAt: number,
+  getNeighbours: GetNeighbours
+): Seat => {
   if (seat === Seat.floor) return Seat.floor;
 
   const occupiedNeighbours = countOccupied(getNeighbours(world, x, y));
 
   if (seat === Seat.empty && occupiedNeighbours === 0) return Seat.occupied;
 
-  if (seat === Seat.occupied && occupiedNeighbours >= 4) return Seat.empty;
+  if (seat === Seat.occupied && occupiedNeighbours >= leaveAt)
+    return Seat.empty;
 
   return seat;
 };
 
-const run = (world: World): World =>
-  world.map((row, i) => row.map((seat, j) => runSeat(world, seat, i, j)));
+const run = (
+  world: World,
+  leaveAt: number,
+  getNeighbours: GetNeighbours
+): World =>
+  world.map((row, i) =>
+    row.map((seat, j) => runSeat(world, seat, i, j, leaveAt, getNeighbours))
+  );
 
 /* === IMPLEMENTATION === */
-const occupiedWhenStable = (world: World): number => {
+const occupiedWhenStable = (
+  world: World,
+  leaveAt: number = 4,
+
+  getNeighbours: GetNeighbours = getDirectNeighbours
+): number => {
   let prev: World = [[]];
 
-  let loops = 0;
-
   do {
-    loops++;
     prev = world;
-    world = run(world);
+    world = run(world, leaveAt, getNeighbours);
   } while (countOccupiedInWorld(world) !== countOccupiedInWorld(prev));
 
   return countOccupiedInWorld(world);
@@ -66,15 +104,23 @@ test("Day <day>a - test", () => {
   expect(result).toBe(37);
 });
 
-test("Day <day>a - prod", () => {
+test.skip("Day <day>a - prod", () => {
   const result = occupiedWhenStable(prodInput);
 
   expect(result).toBe(2275);
 });
 
-test.skip("Day <day>b - test", () => {});
+test("Day <day>b - test", () => {
+  const result = occupiedWhenStable(testInput, 5, getFirstInSight);
 
-test.skip("Day <day>b - prod", () => {});
+  expect(result).toBe(26);
+});
+
+test("Day <day>b - prod", () => {
+  const result = occupiedWhenStable(prodInput, 5, getFirstInSight);
+
+  expect(result).toBe(26);
+});
 
 /* === INPUTS === */
 
