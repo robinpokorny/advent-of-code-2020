@@ -104,7 +104,7 @@ test("Day <day>a - test", () => {
   expect(result).toBe(37);
 });
 
-test.skip("Day <day>a - prod", () => {
+test("Day <day>a - prod", () => {
   const result = occupiedWhenStable(prodInput);
 
   expect(result).toBe(2275);
@@ -119,7 +119,7 @@ test("Day <day>b - test", () => {
 test("Day <day>b - prod", () => {
   const result = occupiedWhenStable(prodInput, 5, getFirstInSight);
 
-  expect(result).toBe(26);
+  expect(result).toBe(2121);
 });
 
 /* === INPUTS === */
