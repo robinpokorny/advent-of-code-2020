@@ -98,25 +98,25 @@ const occupiedWhenStable = (
 
 /* === TESTS === */
 
-test("Day <day>a - test", () => {
+test("Day 11a - test", () => {
   const result = occupiedWhenStable(testInput);
 
   expect(result).toBe(37);
 });
 
-test("Day <day>a - prod", () => {
+test("Day 11a - prod", () => {
   const result = occupiedWhenStable(prodInput);
 
   expect(result).toBe(2275);
 });
 
-test("Day <day>b - test", () => {
+test("Day 11b - test", () => {
   const result = occupiedWhenStable(testInput, 5, getFirstInSight);
 
   expect(result).toBe(26);
 });
 
-test("Day <day>b - prod", () => {
+test("Day 11b - prod", () => {
   const result = occupiedWhenStable(prodInput, 5, getFirstInSight);
 
   expect(result).toBe(2121);

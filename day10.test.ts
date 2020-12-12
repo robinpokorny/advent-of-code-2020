@@ -43,13 +43,13 @@ const countCombinations = (adapters: number[]): number =>
 
 /* === TESTS === */
 
-test("Day <day>a - test", () => {
+test("Day 10a - test", () => {
   const diffs = joltageDiff(testInput);
 
   expect(diffs[1] * diffs[3]).toBe(220);
 });
 
-test("Day <day>a - prod", () => {
+test("Day 10a - prod", () => {
   const diffs = joltageDiff(prodInput);
 
   console.log(diffs);
@@ -57,13 +57,13 @@ test("Day <day>a - prod", () => {
   expect(diffs[1] * diffs[3]).toBe(1836);
 });
 
-test("Day <day>b - test", () => {
+test("Day 10b - test", () => {
   const result = countCombinations(testInput);
 
   expect(result).toBe(19208);
 });
 
-test("Day <day>b - prod", () => {
+test("Day 10b - prod", () => {
   const result = countCombinations(prodInput);
 
   expect(result).toBe(43406276662336);
