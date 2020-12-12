@@ -16,10 +16,12 @@ type Command = {
   value: number;
 };
 
+type Vector = [number, number];
+
 type Position = {
   x: number;
   y: number;
-  facing: Cardinal;
+  waypoint: Vector;
 };
 
 /* === PREPARE INPUT === */
@@ -42,14 +44,14 @@ const manhattan = ({ x, y }: Position): number => Math.abs(x) + Math.abs(y);
 
 const mod = (a: number, b: number) => ((a % b) + b) % b;
 
-const OrderedCardinals = [
-  Cardinal.east,
-  Cardinal.north,
-  Cardinal.west,
-  Cardinal.south,
-];
-const rotate = (facing: Cardinal, steps: number): Cardinal =>
-  OrderedCardinals[mod(OrderedCardinals.indexOf(facing) + steps, 4)];
+const rotations = [
+  ([x, y]) => [x, y],
+  ([x, y]) => [-y, x],
+  ([x, y]) => [-x, -y],
+  ([x, y]) => [y, -x],
+] as Array<(v: Vector) => Vector>;
+const rotate = (waypoint: Vector, steps: number): Vector =>
+  rotations[mod(steps, 4)](waypoint);
 
 const response: Record<
   Cardinal | Action,
@@ -59,25 +61,31 @@ const response: Record<
   W: ({ x, ...p }, value) => ({ ...p, x: x - value }),
   S: ({ y, ...p }, value) => ({ ...p, y: y - value }),
   E: ({ x, ...p }, value) => ({ ...p, x: x + value }),
-  L: ({ facing, ...p }, value) => ({
+  L: ({ waypoint, ...p }, value) => ({
     ...p,
-    facing: rotate(facing, value / 90),
+    waypoint: rotate(waypoint, value / 90),
   }),
-  R: ({ facing, ...p }, value) => ({
+  R: ({ waypoint, ...p }, value) => ({
     ...p,
-    facing: rotate(facing, -value / 90),
+    waypoint: rotate(waypoint, -value / 90),
   }),
-  F: (p, value) => response[p.facing](p, value),
+  F: ({ x, y, waypoint: [wx, wy] }, value) => ({
+    x: x + value * wx,
+    y: y + value * wy,
+    waypoint: [wx, wy],
+  }),
 };
 
 /* === IMPLEMENTATION === */
 const follow = (cmds: Command[]): Position =>
   cmds.reduce(
-    (position, { action, value }) => response[action](position, value),
+    (position, { action, value }) =>
+      // console.log(position, action, value) ||
+      response[action](position, value),
     {
       x: 0,
       y: 0,
-      facing: Cardinal.east,
+      waypoint: [1, 0],
     } as Position
   );
 
