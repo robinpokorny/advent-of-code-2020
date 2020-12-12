@@ -24,6 +24,11 @@ type Position = {
   waypoint: Vector;
 };
 
+type CmdResponses = Record<
+  Cardinal | Action,
+  (P: Position, value: number) => Position
+>;
+
 /* === PREPARE INPUT === */
 
 const re = /^(\w)(\d+)/;
@@ -53,10 +58,7 @@ const rotations = [
 const rotate = (waypoint: Vector, steps: number): Vector =>
   rotations[mod(steps, 4)](waypoint);
 
-const response: Record<
-  Cardinal | Action,
-  (P: Position, value: number) => Position
-> = {
+const response: CmdResponses = {
   N: ({ y, ...p }, value) => ({ ...p, y: y + value }),
   W: ({ x, ...p }, value) => ({ ...p, x: x - value }),
   S: ({ y, ...p }, value) => ({ ...p, y: y - value }),
@@ -76,16 +78,44 @@ const response: Record<
   }),
 };
 
+const responseWaypoint: CmdResponses = {
+  ...response,
+  N: ({ waypoint: [wx, wy], ...p }, value) => ({
+    ...p,
+    waypoint: [wx, wy + value],
+  }),
+  W: ({ waypoint: [wx, wy], ...p }, value) => ({
+    ...p,
+    waypoint: [wx - value, wy],
+  }),
+  S: ({ waypoint: [wx, wy], ...p }, value) => ({
+    ...p,
+    waypoint: [wx, wy - value],
+  }),
+  E: ({ waypoint: [wx, wy], ...p }, value) => ({
+    ...p,
+    waypoint: [wx + value, wy],
+  }),
+};
+
 /* === IMPLEMENTATION === */
 const follow = (cmds: Command[]): Position =>
   cmds.reduce(
-    (position, { action, value }) =>
-      // console.log(position, action, value) ||
-      response[action](position, value),
+    (position, { action, value }) => response[action](position, value),
     {
       x: 0,
       y: 0,
       waypoint: [1, 0],
+    } as Position
+  );
+
+const followWaypoint = (cmds: Command[]): Position =>
+  cmds.reduce(
+    (position, { action, value }) => responseWaypoint[action](position, value),
+    {
+      x: 0,
+      y: 0,
+      waypoint: [10, 1],
     } as Position
   );
 
@@ -94,22 +124,26 @@ const follow = (cmds: Command[]): Position =>
 test("Day 12a - test", () => {
   const destination = follow(testInput);
 
-  console.log(destination);
-
   expect(manhattan(destination)).toBe(25);
 });
 
 test("Day 12a - prod", () => {
   const destination = follow(prodInput);
 
-  console.log(destination);
-
   expect(manhattan(destination)).toBe(1956);
 });
 
-test.skip("Day 12b - test", () => {});
+test("Day 12b - test", () => {
+  const destination = followWaypoint(testInput);
 
-test.skip("Day 12b - prod", () => {});
+  expect(manhattan(destination)).toBe(286);
+});
+
+test("Day 12b - prod", () => {
+  const destination = followWaypoint(prodInput);
+
+  expect(manhattan(destination)).toBe(126797);
+});
 
 /* === INPUTS === */
 
