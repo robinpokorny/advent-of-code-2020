@@ -4,11 +4,16 @@ type Input = {
   busses: string[];
 };
 
+type RemainderModulo = {
+  remainder: bigint;
+  modulo: bigint;
+};
+
 /* === PREPARE INPUT === */
 
 export const prepareInput = ([input]: TemplateStringsArray): Input => {
   const [time, busses] = input.split("\n");
-  console.log(busses);
+
   return {
     time: Number(time),
     busses: busses.split(","),
@@ -16,6 +21,30 @@ export const prepareInput = ([input]: TemplateStringsArray): Input => {
 };
 
 /* === UTILS === */
+
+const range = (from: number, to: number) =>
+  [...Array(to - from + 1).keys()].map((i) => i + from);
+
+const multiplicativeInverse = (x: bigint, modulo: bigint) =>
+  range(1, Number(modulo))
+    .map(BigInt)
+    .find((candidate) => ((x % modulo) * candidate) % modulo === BigInt(1)) ||
+  BigInt(1);
+
+// Chinese Remainder Theorem Solver
+const solveCRT = (rms: RemainderModulo[]): bigint => {
+  const N = rms.map(({ modulo }) => modulo).reduce((a, b) => a * b);
+
+  return (
+    rms
+      .map(({ remainder, modulo }) => {
+        const n = N / modulo;
+
+        return remainder * multiplicativeInverse(n, modulo) * n;
+      })
+      .reduce((a, b) => a + b, BigInt(0)) % N
+  );
+};
 
 /* === IMPLEMENTATION === */
 const nextBus = (time: number, busses: string[]) => {
@@ -30,6 +59,21 @@ const nextBus = (time: number, busses: string[]) => {
 
   return withNext.sort(({ wait: waitA }, { wait: waitB }) => waitA - waitB)[0];
 };
+
+const earliestInOrder = (busses: string[]): bigint =>
+  solveCRT(
+    busses
+      .map(Number)
+      .map((bus, minute) => [bus, minute])
+      .filter(([bus]) => !Number.isNaN(bus))
+      .map(
+        ([bus, minute]) =>
+          ({
+            remainder: BigInt(bus - minute),
+            modulo: BigInt(bus),
+          } as RemainderModulo)
+      )
+  );
 
 /* === TESTS === */
 
@@ -52,9 +96,17 @@ test("Day 13a - prod", () => {
   expect(next.bus * next.wait).toBe(2305);
 });
 
-test.skip("Day 13b - test", () => {});
+test("Day 13b - test", () => {
+  const { busses } = testInput;
 
-test.skip("Day 13b - prod", () => {});
+  expect(earliestInOrder(busses).toString()).toBe("1068781");
+});
+
+test("Day 13b - prod", () => {
+  const { busses } = prodInput;
+
+  expect(earliestInOrder(busses).toString()).toBe("552612234243498");
+});
 
 /* === INPUTS === */
 
