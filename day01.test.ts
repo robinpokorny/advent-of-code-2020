@@ -1,30 +1,28 @@
-/* === UTILS === */
-
-// cartesianProd([1, 2], [3, 4]) === [ [1, 3], [1, 4], [2, 3], [2, 4] ];
-const cartesianProd = <T>(...sets: T[][]): T[][] =>
-  sets.reduce<T[][]>(
-    (acc, set) => acc.flatMap((x) => set.map((y) => [...x, y])),
-    [[]]
-  );
-
-// setToPower(3, [1, 2]) === cartesianProd([1, 2], [1, 2], [1, 2]);
-const setToPower = <T>(dimension: number, set: T[]) =>
-  cartesianProd<T>(...Array(dimension).fill(set));
-
-// sum([1, 2, 3]) === 6;
-const sum = (inputs: number[]) => inputs.reduce((a, b) => a + b, 0);
-
 /* === IMPLEMENTATION === */
 
 export const findOperandsSum = (
   operands: number,
-  targetSum: number,
+  sum = 2020,
   list: number[]
-): number[] =>
-  setToPower(operands, list).find((point) => sum(point) === targetSum) || [];
+): number[] | null => {
+  // Final recursion condition
+  if (operands === 1) {
+    return list.includes(sum) ? [sum] : null;
+  }
+
+  // Calls recursion with early return
+  for (const n of list) {
+    const result = findOperandsSum(operands - 1, sum - n, list);
+    if (result) {
+      return [n, ...result];
+    }
+  }
+
+  return null;
+};
 
 test("Day 1a - test", () => {
-  const [a, b] = findOperandsSum(2, 2020, testInput);
+  const [a, b] = findOperandsSum(2, 2020, testInput) || [];
 
   expect(a + b).toBe(2020);
 
@@ -32,7 +30,7 @@ test("Day 1a - test", () => {
 });
 
 test("Day 1a - prod", () => {
-  const [a, b] = findOperandsSum(2, 2020, prodInput);
+  const [a, b] = findOperandsSum(2, 2020, prodInput) || [];
 
   expect(a + b).toBe(2020);
 
@@ -40,7 +38,7 @@ test("Day 1a - prod", () => {
 });
 
 test("Day 1b - test", () => {
-  const [a, b, c] = findOperandsSum(3, 2020, testInput);
+  const [a, b, c] = findOperandsSum(3, 2020, testInput) || [];
 
   expect(a + b + c).toBe(2020);
 
@@ -48,7 +46,7 @@ test("Day 1b - test", () => {
 });
 
 test("Day 1b - prod", () => {
-  const [a, b, c] = findOperandsSum(3, 2020, prodInput);
+  const [a, b, c] = findOperandsSum(3, 2020, prodInput) || [];
 
   expect(a + b + c).toBe(2020);
 
