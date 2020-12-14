@@ -11,7 +11,7 @@ const last = <T>(xs: T[]): T => xs[xs.length - 1];
 const empty = (): Diffs => ({ 1: 0, 3: 0 });
 const toDiff = (xs: number[]): (1 | 3)[] =>
   xs.map((x, i) => (x - (xs[i - 1] || 0)) as 1 | 3);
-const product = (a, b) => a * b;
+const product = (a: number, b: number) => a * b;
 
 // Ways of passing x ones in a row
 const COMBINATIONS = [1, 1, 2, 4, 7];
@@ -51,8 +51,6 @@ test("Day 10a - test", () => {
 
 test("Day 10a - prod", () => {
   const diffs = joltageDiff(prodInput);
-
-  console.log(diffs);
 
   expect(diffs[1] * diffs[3]).toBe(1836);
 });
