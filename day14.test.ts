@@ -28,11 +28,11 @@ export const prepareInput = ([input]: TemplateStringsArray) =>
 const sumMemory = (memory: Memory) =>
   [...memory.values()].reduce((a, b) => a + b, 0);
 
-const toBinary = (x: number): string => x.toString(2).padStart(36, "0");
+const toBinary36 = (x: number): string => x.toString(2).padStart(36, "0");
 
 const applyMaskValue = (mask: string, value: number): number =>
   Number.parseInt(
-    toBinary(value)
+    toBinary36(value)
       .split("")
       .map((digit, i) => (mask[i] === "X" ? digit : mask[i]))
       .join(""),
@@ -63,7 +63,7 @@ const setInMaskedAddress: SetInMaskedAddress = (mask, address, memory, value) =>
 
         return result;
       },
-      [toBinary(address)]
+      [toBinary36(address)]
     )
     .map((addr) => Number.parseInt(addr, 2))
     .reduce((memory, addr) => memory.set(addr, value), memory);
