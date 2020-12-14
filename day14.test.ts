@@ -6,6 +6,7 @@ type Command = Mask | SetValue;
 type Memory = Map<number, number>;
 
 /* === PREPARE INPUT === */
+
 const parseLine = (line: string): Command => {
   const [mem, , valueRaw] = line.split(" ");
   if (mem === "mask") {
@@ -23,33 +24,78 @@ export const prepareInput = ([input]: TemplateStringsArray) =>
   input.split("\n").map(parseLine);
 
 /* === UTILS === */
+
 const sumMemory = (memory: Memory) =>
   [...memory.values()].reduce((a, b) => a + b, 0);
 
-const fromRigth = (index: number, arr: string): string =>
-  arr[arr.length - 1 - index];
+const toBinary = (x: number): string => x.toString(2).padStart(36, "0");
 
-const applyMask = (mask: string, value: number): number =>
+const applyMaskValue = (mask: string, value: number): number =>
   Number.parseInt(
-    value
-      .toString(2)
-      .padStart(36, "0")
+    toBinary(value)
       .split("")
       .map((digit, i) => (mask[i] === "X" ? digit : mask[i]))
       .join(""),
     2
   );
 
+const setAt = (value: string, index: number) => (text: string) =>
+  text.substr(0, index) + value + text.substr(index + value.length);
+
+type SetInMaskedAddress = (
+  mask: string,
+  address: number,
+  memory: Memory,
+  value: number
+) => Memory;
+const setInMaskedAddress: SetInMaskedAddress = (mask, address, memory, value) =>
+  mask
+    .split("")
+    .reduce(
+      (result, m, i) => {
+        if (m === "1") return result.map(setAt("1", i));
+
+        if (m === "X")
+          return result.flatMap((addr) => [
+            setAt("0", i)(addr),
+            setAt("1", i)(addr),
+          ]);
+
+        return result;
+      },
+      [toBinary(address)]
+    )
+    .map((addr) => Number.parseInt(addr, 2))
+    .reduce((memory, addr) => memory.set(addr, value), memory);
+
 /* === IMPLEMENTATION === */
+
 const run = (cmds: Command[]): Memory =>
   cmds.reduce<[Memory, string]>(
     ([memory, mask], command) =>
       command.type === "mask"
         ? [memory, command.mask]
-        : [memory.set(command.address, applyMask(mask, command.value)), mask],
+        : [
+            memory.set(command.address, applyMaskValue(mask, command.value)),
+            mask,
+          ],
 
     [new Map() as Memory, ""]
   )[0];
+
+const run2 = (cmds: Command[]): Memory =>
+  cmds.reduce<[Memory, string]>(
+    ([memory, mask], command) =>
+      command.type === "mask"
+        ? [memory, command.mask]
+        : [
+            setInMaskedAddress(mask, command.address, memory, command.value),
+            mask,
+          ],
+
+    [new Map() as Memory, ""]
+  )[0];
+
 /* === TESTS === */
 
 test("Day <day>a - test", () => {
@@ -64,9 +110,33 @@ test("Day <day>a - prod", () => {
   expect(sumMemory(memory)).toBe(13727901897109);
 });
 
-test.skip("Day <day>b - test", () => {});
+test("Day <day>b - test", () => {
+  expect(
+    setInMaskedAddress(
+      "000000000000000000000000000000X1001X",
+      42,
+      new Map(),
+      101
+    )
+  ).toMatchInlineSnapshot(`
+    Map {
+      26 => 101,
+      27 => 101,
+      58 => 101,
+      59 => 101,
+    }
+  `);
 
-test.skip("Day <day>b - prod", () => {});
+  const memory = run2(testInput2);
+
+  expect(sumMemory(memory)).toBe(208);
+});
+
+test("Day <day>b - prod", () => {
+  const memory = run2(prodInput);
+
+  expect(sumMemory(memory)).toBe(5579916171823);
+});
 
 /* === INPUTS === */
 
@@ -74,6 +144,11 @@ const testInput = prepareInput`mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X
 mem[8] = 11
 mem[7] = 101
 mem[8] = 0`;
+
+const testInput2 = prepareInput`mask = 000000000000000000000000000000X1001X
+mem[42] = 100
+mask = 00000000000000000000000000000000X0XX
+mem[26] = 1`;
 
 const prodInput = prepareInput`mask = X10X11X1000101X1XX001100001X101X0111
 mem[27041] = 56559
