@@ -98,19 +98,19 @@ const run2 = (cmds: Command[]): Memory =>
 
 /* === TESTS === */
 
-test("Day <day>a - test", () => {
+test("Day 14a - test", () => {
   const memory = run(testInput);
 
   expect(sumMemory(memory)).toBe(165);
 });
 
-test("Day <day>a - prod", () => {
+test("Day 14a - prod", () => {
   const memory = run(prodInput);
 
   expect(sumMemory(memory)).toBe(13727901897109);
 });
 
-test("Day <day>b - test", () => {
+test("Day 14b - test", () => {
   expect(
     setInMaskedAddress(
       "000000000000000000000000000000X1001X",
@@ -132,7 +132,7 @@ test("Day <day>b - test", () => {
   expect(sumMemory(memory)).toBe(208);
 });
 
-test("Day <day>b - prod", () => {
+test("Day 14b - prod", () => {
   const memory = run2(prodInput);
 
   expect(sumMemory(memory)).toBe(5579916171823);
