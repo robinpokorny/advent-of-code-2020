@@ -1,20 +1,14 @@
-/* === TYPES === */
-
-type Memory = Map<number, { at: number; diffToPrev: number | null }>;
-
 /* === IMPLEMENTATION === */
 export const vanEck = (N: number, starting: number[]): number => {
-  const memory: Memory = new Map(
-    starting.map((n, i) => [n, { at: i + 1, diffToPrev: null }])
-  );
+  const memory = new Map(starting.map((v, i) => [v, i]));
 
   let prev = -Infinity;
 
-  for (let i = starting.length + 1; i <= N; i++) {
-    prev = memory.get(prev)?.diffToPrev ?? 0;
+  for (let i = starting.length; i < N; i++) {
+    const prevIndex = memory.get(prev);
+    memory.set(prev, i - 1);
 
-    const { at } = memory.get(prev) ?? {};
-    memory.set(prev, { at: i, diffToPrev: at ? i - at : null });
+    prev = prevIndex != null ? i - 1 - prevIndex : 0;
   }
 
   return prev;
