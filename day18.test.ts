@@ -53,17 +53,30 @@ const infixToRP = (ops: Record<string, number>) => (infix: string) =>
     .flat();
 
 /* === IMPLEMENTATION === */
-const rpn = (rp: string[]) =>
-  rp.reduce((s, t) => {
-    if (Number.parseInt(t)) {
-      return [...s, t];
-    }
 
-    const [b, a, ...rest] = s.reverse();
-    const result = eval(a + t + b);
+const operationsMap: Record<string, (a:number, b:number)=> number = {
+  "+": (a, b) => a + b,
+  "*": (a, b) => a * b,
+};
 
-    return [...rest.reverse(), result];
-  }, [] as string[])[0];
+const evaluateReversePolish = (stack: Array<string|number>, token: string) => {
+  const tokenAsNumber = parseFloat(token);
+
+  if (Number.isFinite(tokenAsNumber)) {
+    return [tokenAsNumber, ...stack];
+  }
+
+  // The token is an operation
+  const operation = operationsMap[token];
+  const [b, a, ...rest] = stack;
+
+  // @ts-ignore
+  const result = operation(a, b);
+
+  return [result, ...rest];
+};
+
+const rpn = (tokens: string[]) => tokens.reduce(evaluateReversePolish, [])[0];
 
 /* === TESTS === */
 
