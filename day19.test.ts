@@ -71,9 +71,20 @@ test("Day 19a - prod", () => {
   expect(matching.length).toBe(162);
 });
 
-test("Day 19b - test", () => {});
+test("Day 19b - prod", () => {
+  const { rules, messages } = prodInput;
 
-test.skip("Day 19b - prod", () => {});
+  // prettier-ignore
+  rules
+  .set(8, [[ 42 ], [ 42, 8 ]])
+  .set(11, [[ 42, 31 ],  [ 42, 11, 31 ]]);
+
+  const matching = messages.filter(
+    (msg) => matches(rules, msg, 0)[0] === msg.length
+  );
+
+  expect(matching.length).toBe(267);
+});
 
 /* === INPUTS === */
 
